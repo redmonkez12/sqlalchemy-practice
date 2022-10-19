@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Text, or_
+from sqlalchemy import Column, Integer, Text, or_, null
 
 from db import db_connect, create_session, Base, create_tables_orm
 
@@ -27,8 +27,9 @@ new_customers = [
 ]
 
 session.add_all(new_customers)
+session.commit()
 
-result = session.query(Customer.name).filter(or_(Customer.referee_id != 2, Customer.referee_id == None))
+result = session.query(Customer.name).filter(or_(Customer.referee_id != 2, Customer.referee_id == null()))
 for row in result:
     print(row)
 

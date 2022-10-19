@@ -26,6 +26,7 @@ new_movies = [
 ]
 
 session.add_all(new_movies)
+session.commit()
 
 result = session.query(Movie)\
     .where(and_(func.mod(Movie.movie_id, 2) == 1, Movie.description != "boring")) \

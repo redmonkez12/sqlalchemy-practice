@@ -28,20 +28,10 @@ new_orders = [
 session.add_all(new_orders)
 session.commit()
 
-# class Order(Base):
-#     __tablename__ = "orders"
-#
-#     order_id = Column(Integer, primary_key=True)
-#     order_number = Column(Integer, nullable=False)
-#     customer_number = Column(Integer, nullable=False)
-
-# result = session.query(Order.order_id, Order.order_number)
-result = select(Order.order_id)
-
-# result = session.query(Order.customer_number)\
-#     .group_by(Order.customer_number)\
-#     .order_by(desc(func.count())) \
-#     .limit(1)
+result = session.query(Order.customer_number)\
+    .group_by(Order.customer_number)\
+    .order_by(desc(func.count())) \
+    .limit(1)
 for row in result:
     print(row.order_id, row.order_number)
 

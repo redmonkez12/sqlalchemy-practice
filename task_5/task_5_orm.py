@@ -36,7 +36,6 @@ new_orders = [
 ]
 
 session.add_all(new_customers)
-session.commit()
 session.add_all(new_orders)
 session.commit()
 

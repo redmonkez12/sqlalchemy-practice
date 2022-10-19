@@ -12,12 +12,7 @@ customer = Table(
     Column("referee_id", Integer, nullable=True),
 )
 
-# create_tables(engine)
-# customer.drop(engine, checkfirst=True)
-customer.create(engine, checkfirst=True)
-
-# metadata.drop_all(engine, checkfirst=True)
-metadata.create_all(engine, checkfirst=True)
+create_tables(engine)
 
 new_customers = [
     {"name": "Will", "referee_id": None},
@@ -30,7 +25,7 @@ new_customers = [
 
 connection.execute(customer.insert(), new_customers)
 
-query = select([customer.c.name]).where(or_(customer.c.referee_id != 2, customer.c.referee_id == None))
+query = select([customer.c.name]).where(or_(customer.c.referee_id != 2, customer.c.referee_id == null()))
 result = connection.execute(query)
 for row in result:
     print(row)

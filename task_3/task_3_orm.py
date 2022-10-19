@@ -26,6 +26,7 @@ new_products = [
 ]
 
 session.add_all(new_products)
+session.commit()
 
 result = session.query(Products.product_id).filter(and_(Products.low_fats == "Y", Products.recyclable == "Y"))
 

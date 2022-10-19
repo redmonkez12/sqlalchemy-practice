@@ -37,7 +37,6 @@ new_salaries = [
 ]
 
 session.add_all(new_employees)
-session.commit()
 session.add_all(new_salaries)
 session.commit()
 

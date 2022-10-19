@@ -43,8 +43,8 @@ new_students = [
 ]
 
 session.add_all(new_students)
-session.commit()
 session.add_all(new_departments)
+session.commit()
 
 result = session.query(Student.student_id, Student.student_name)\
     .where(Student.department_id.not_in(session.query(Department.department_id)))

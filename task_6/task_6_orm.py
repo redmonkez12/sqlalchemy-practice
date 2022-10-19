@@ -26,7 +26,6 @@ new_followers = [
 session.add_all(new_followers)
 session.commit()
 
-
 result = session.query(Follower.user_id, func.count(Follower.follower_id).label("followers_count"))\
     .group_by(Follower.user_id)\
     .order_by(asc(Follower.user_id))

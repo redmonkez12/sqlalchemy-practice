@@ -25,6 +25,7 @@ new_weather = [
 ]
 
 session.add_all(new_weather)
+session.commit()
 
 a = aliased(Weather)
 b = aliased(Weather)

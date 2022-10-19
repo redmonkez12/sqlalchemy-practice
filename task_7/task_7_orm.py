@@ -43,7 +43,6 @@ new_transactions = [
 ]
 
 session.add_all(new_visits)
-session.commit()
 session.add_all(new_transactions)
 session.commit()
 

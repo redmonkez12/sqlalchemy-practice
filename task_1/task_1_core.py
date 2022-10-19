@@ -14,7 +14,6 @@ sales_person = Table(
     Column("commission_rate", Integer, nullable=False),
     Column("hire_date", Date, nullable=False),
     UniqueConstraint("name", "salary", name="udx_1"),
-    # Index("idx_name", "name"),
 )
 
 company = Table(
