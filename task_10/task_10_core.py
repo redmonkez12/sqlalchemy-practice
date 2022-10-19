@@ -25,6 +25,7 @@ new_numbers = [
 ]
 
 connection.execute(number.insert(), new_numbers)
+# connection.commit()
 
 subquery = select(number.c.num).group_by(number.c.num).having(func.count(number.c.num) == 1).subquery()
 query = select(func.max(subquery.c.num).label("num"))

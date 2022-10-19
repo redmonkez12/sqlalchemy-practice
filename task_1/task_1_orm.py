@@ -1,5 +1,5 @@
 from db import db_connect, create_tables_orm, Base, create_session
-from sqlalchemy import Column, Integer, Text, Numeric, Date, ForeignKey, select
+from sqlalchemy import Column, Integer, Text, Numeric, Date, ForeignKey, select, Index
 
 engine, connection = db_connect("postgres", "123456", "etoro")
 
@@ -12,6 +12,8 @@ class SalesPerson(Base):
     salary = Column(Numeric, nullable=False)
     commission_rate = Column(Integer, nullable=False)
     hire_date = Column(Date, nullable=False)
+
+    __table_args__ = (Index("idx_name", "name"),)
 
 
 class Company(Base):
@@ -68,7 +70,7 @@ session.commit()
 
 result = session.query(SalesPerson.name) \
     .filter(SalesPerson.sales_id.not_in(
-        select(Orders.sales_id).join(Company).filter(Company.name == "RED")
+        select(Orders.sales_id).join(Company).where(Company.name == "RED")
     )
 )
 

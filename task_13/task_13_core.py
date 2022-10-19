@@ -25,13 +25,17 @@ new_orders = [
 
 connection.execute(order.insert(), new_orders)
 
-query = select(order.c.customer_number)\
-    .group_by(order.c.customer_number) \
-    .order_by(desc(func.count())) \
-    .limit(1)
+# query = select(order.c.customer_number)\
+#     .group_by(order.c.customer_number) \
+#     .order_by(desc(func.count())) \
+#     .limit(1)
+
+# query = order.select()
+query = select(order.c.order_id, order.c.customer_number)
+# session.query(Order)
 
 result = connection.execute(query)
 for row in result:
-    print(row)
+    print(row.order_id, row.customer_number)
 
 connection.close()

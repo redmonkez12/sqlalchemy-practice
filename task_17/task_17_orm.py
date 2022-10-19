@@ -29,7 +29,7 @@ session.add_all(new_weather)
 a = aliased(Weather)
 b = aliased(Weather)
 
-result = session.query(b.weather_id)\
+result = session.query(b.weather_id) \
     .select_from(a) \
     .join(b, a.record_date == b.record_date - 1) \
     .where(b.temperature > a.temperature)

@@ -40,7 +40,6 @@ new_sales = [
 ]
 
 session.add_all(new_products)
-session.commit()
 session.add_all(new_sales)
 session.commit()
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Text, Integer, select, or_
+from sqlalchemy import Table, Column, Text, Integer, select, or_, null
 
 from db import db_connect, create_tables, metadata
 
@@ -12,7 +12,12 @@ customer = Table(
     Column("referee_id", Integer, nullable=True),
 )
 
-create_tables(engine)
+# create_tables(engine)
+# customer.drop(engine, checkfirst=True)
+customer.create(engine, checkfirst=True)
+
+# metadata.drop_all(engine, checkfirst=True)
+metadata.create_all(engine, checkfirst=True)
 
 new_customers = [
     {"name": "Will", "referee_id": None},

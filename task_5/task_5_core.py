@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Text, Integer, ForeignKey, select
+from sqlalchemy import Table, Column, Text, Integer, ForeignKey, select, text
 
 from db import db_connect, create_tables, metadata
 

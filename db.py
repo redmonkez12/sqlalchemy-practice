@@ -7,7 +7,11 @@ Base = declarative_base()
 
 
 def db_connect(username: str, password: str, dbname: str):
-    engine = create_engine(f"postgresql+psycopg2://{username}:{password}@localhost:5432/{dbname}", echo=True)
+    engine = create_engine(
+        f"postgresql+psycopg2://{username}:{password}@localhost:5432/{dbname}",
+        echo=True,
+        # future=True,
+    )
     connection = engine.connect()
 
     return engine, connection

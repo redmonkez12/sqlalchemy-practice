@@ -24,11 +24,18 @@ new_employees = [
 
 connection.execute(employee.insert(), new_employees)
 
+# subquery = select(employee.c.team_id.label("team_id"), func.count().label("count")).group_by(
+#     employee.c.team_id).subquery()
+# query = select(employee.c.employee_id, subquery.c.count.label("team_size")) \
+#     .select_from(employee.outerjoin(subquery, subquery.c.team_id == employee.c.team_id)
+#                  )
+
 subquery = select(employee.c.team_id.label("team_id"), func.count().label("count")).group_by(
-    employee.c.team_id).subquery()
+    employee.c.team_id).alias("team")
 query = select(employee.c.employee_id, subquery.c.count.label("team_size")) \
-    .select_from(employee.outerjoin(subquery, subquery.c.team_id == employee.c.team_id)
-                 )
+    .select_from(employee.outerjoin(subquery, subquery.c.team_id == employee.c.team_idx))
+
+
 result = connection.execute(query)
 
 for row in result:

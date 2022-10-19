@@ -1,4 +1,5 @@
-from sqlalchemy import Table, Column, Text, Integer, Numeric, Date, select, ForeignKey
+from sqlalchemy import (
+    Table, Column, Text, Integer, Numeric, Date, select, ForeignKey, Index, UniqueConstraint)
 
 from db import db_connect, create_tables, metadata
 
@@ -12,6 +13,8 @@ sales_person = Table(
     Column("salary", Numeric, nullable=False),
     Column("commission_rate", Integer, nullable=False),
     Column("hire_date", Date, nullable=False),
+    UniqueConstraint("name", "salary", name="udx_1"),
+    # Index("idx_name", "name"),
 )
 
 company = Table(
