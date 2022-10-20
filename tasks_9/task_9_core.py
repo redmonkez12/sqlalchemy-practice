@@ -2,7 +2,7 @@ from sqlalchemy import Table, Column, Integer, Text, Numeric, union, select
 
 from db import db_connect, create_tables, metadata
 
-engine, connection = db_connect("postgres", "123456", "etoro")
+engine, connection = db_connect()
 
 employee = Table(
     "employees",

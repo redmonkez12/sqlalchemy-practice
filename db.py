@@ -1,3 +1,6 @@
+from dotenv import dotenv_values
+import os
+
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -6,7 +9,14 @@ metadata = MetaData()
 Base = declarative_base()
 
 
-def db_connect(username: str, password: str, dbname: str):
+def db_connect():
+    # pip install python-dotenv
+    # pip install SQLAlchemy
+    config = dotenv_values("../.env")
+    username = config.get("DB_USERNAME")
+    password = config.get("DB_PASSWORD")
+    dbname = config.get("DB_NAME")
+
     engine = create_engine(
         f"postgresql+psycopg2://{username}:{password}@localhost:5432/{dbname}",
         echo=True,

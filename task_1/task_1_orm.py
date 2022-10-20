@@ -1,7 +1,7 @@
 from db import db_connect, create_tables_orm, Base, create_session
 from sqlalchemy import Column, Integer, Text, Numeric, Date, ForeignKey, select
 
-engine, connection = db_connect("postgres", "123456", "etoro")
+engine, connection = db_connect()
 
 
 class SalesPerson(Base):

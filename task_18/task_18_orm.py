@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, DateTime, Text, distinct, and_, func
 from sqlalchemy.orm import aliased
 from db import db_connect, create_session, Base, create_tables_orm
 
-engine, connection = db_connect("postgres", "123456", "etoro")
+engine, connection = db_connect()
 
 
 class TvProgram(Base):
@@ -46,10 +46,6 @@ new_content = [
 session.add_all(new_tvprogram)
 session.add_all(new_content)
 session.commit()
-
-# SELECT DISTINCT content.title
-# FROM tvprogram LEFT OUTER JOIN content ON tvprogram.content_id = content.content_id
-# WHERE to_char(tvprogram.program_date, %(to_char_1)s) = %(to_char_2)s AND content.kids_content = %(kids_content_1)s AND content.content_type = %(content_type_1)s
 
 t = aliased(TvProgram, name="t")
 c = aliased(Content, name="c")

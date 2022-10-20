@@ -2,7 +2,7 @@ from sqlalchemy import Table, Column, Integer, Text, Float, func, and_, desc
 
 from db import db_connect, create_tables, metadata
 
-engine, connection = db_connect("postgres", "123456", "etoro")
+engine, connection = db_connect()
 
 movie = Table(
     "movies",

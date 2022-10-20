@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, Text, ForeignKey, func, Numeric, case, Date, and_
 from db import db_connect, create_session, Base, create_tables_orm
 
-engine, connection = db_connect("postgres", "123456", "etoro")
+engine, connection = db_connect()
 
 
 class Product(Base):

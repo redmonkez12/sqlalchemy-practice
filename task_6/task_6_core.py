@@ -2,7 +2,7 @@ from sqlalchemy import Table, Column, Integer, select, asc, func
 
 from db import db_connect, create_tables, metadata
 
-engine, connection = db_connect("postgres", "123456", "etoro")
+engine, connection = db_connect()
 
 
 followers = Table(

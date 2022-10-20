@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, Text, ForeignKey
+from sqlalchemy import Column, Integer, Text, ForeignKey, null
 
 from db import db_connect, create_session, Base, create_tables_orm
 
-engine, connection = db_connect("postgres", "123456", "etoro")
+engine, connection = db_connect()
 
 session = create_session(engine)
 
@@ -44,6 +44,7 @@ session.commit()
 
 result = session.query(Customer.customer_id)\
     .outerjoin(Order).filter(Order.customer_id == None)
+    # .outerjoin(Order).filter_by(customer_id=None)
 
 for row in result:
     print(row)
