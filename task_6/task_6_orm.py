@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, func, asc
 
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -26,12 +27,12 @@ new_followers = [
 session.add_all(new_followers)
 session.commit()
 
-result = session.query(Follower.user_id, func.count(Follower.follower_id).label("followers_count"))\
-    .group_by(Follower.user_id)\
+result = (
+    session.query(Follower.user_id, func.count(Follower.follower_id).label("followers_count"))
+    .group_by(Follower.user_id)
     .order_by(asc(Follower.user_id))
-
-for row in result:
-    print(row)
+)
+print_result(result)
 
 session.close()
 connection.close()

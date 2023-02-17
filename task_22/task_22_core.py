@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, select, func
+from sqlalchemy import Table, Column, Integer, select, func, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -24,14 +25,15 @@ new_actor_director = [
     {"actor_id": 2, "director_id": 1, "timestamp": 6},
 ]
 
-connection.execute(actor_director.insert(), new_actor_director)
+connection.execute(insert(actor_director), new_actor_director)
+connection.commmit()
 
-query = select(actor_director.c.actor_id, actor_director.c.director_id) \
-    .group_by(actor_director.c.actor_id, actor_director.c.director_id) \
+query = (
+    select(actor_director.c.actor_id, actor_director.c.director_id)
+    .group_by(actor_director.c.actor_id, actor_director.c.director_id)
     .having(func.count() >= 3)
+)
 result = connection.execute(query)
-
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, Text, Numeric, union, select
+from sqlalchemy import Table, Column, Integer, Text, Numeric, union, select, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -33,16 +34,15 @@ new_salaries = [
     {"employee_id": 4, "salary": 63539},
 ]
 
-connection.execute(employee.insert(), new_employees)
-connection.execute(salary.insert(), new_salaries)
+connection.execute(insert(employee), new_employees)
+connection.execute(insert(salary), new_salaries)
+connection.commit()
 
 query = union(
     select(employee.c.employee_id).where(employee.c.employee_id.not_in(select(salary.c.employee_id))),
     select(salary.c.employee_id).where(salary.c.employee_id.not_in(select(employee.c.employee_id))),
 )
 result = connection.execute(query)
-
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

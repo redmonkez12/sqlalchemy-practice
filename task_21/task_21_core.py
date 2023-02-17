@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, Text, ForeignKey, select, Numeric, Date, func, and_, case
+from sqlalchemy import Table, Column, Integer, Text, ForeignKey, select, Numeric, Date, func, and_, case, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -40,20 +41,21 @@ new_sales = [
     {"seller_id": 3, "product_id": 3, "buyer_id": 3, "sale_date": "2019-05-13", "quantity": 2, "price": 2800},
 ]
 
-connection.execute(product.insert(), new_products)
-connection.execute(sale.insert(), new_sales)
+connection.execute(insert(product), new_products)
+connection.execute(insert(sale), new_sales)
+connection.commit()
 
-query = select(sale.c.buyer_id)\
-    .select_from(sale.join(product, sale.c.product_id == product.c.product_id))\
-    .group_by(sale.c.buyer_id)\
+query = (
+    select(sale.c.buyer_id)
+    .select_from(sale.join(product, sale.c.product_id == product.c.product_id))
+    .group_by(sale.c.buyer_id)
     .having(and_(
         func.sum(case((product.c.product_name == "S8", 1), else_=0)) > 0,
         func.sum(case((product.c.product_name == "iPhone", 1), else_=0)) == 0
-        )
     )
+    )
+)
 result = connection.execute(query)
-
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, Text, func, Date, distinct, asc
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -29,13 +30,14 @@ new_courses = [
 ]
 
 session.add_all(new_courses)
+session.commit()
 
-result = session.query(Course.class_)\
-    .group_by(Course.class_)\
+result = (
+    session.query(Course.class_)
+    .group_by(Course.class_)
     .having(func.count(distinct(Course.student)) >= 5)
-
-for row in result:
-    print(row)
+)
+print_result(result)
 
 session.close()
 connection.close()

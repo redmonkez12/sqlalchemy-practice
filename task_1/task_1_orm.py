@@ -1,6 +1,8 @@
 from db import db_connect, create_tables_orm, Base, create_session
 from sqlalchemy import Column, Integer, Text, Numeric, Date, ForeignKey, select
 
+from utils import print_result
+
 engine, connection = db_connect()
 
 
@@ -60,21 +62,18 @@ new_orders = [
 ]
 
 session.add_all(new_sales_people)
-session.commit()
 session.add_all(new_companies)
-session.commit()
 session.add_all(new_orders)
 session.commit()
 
-result = session.query(SalesPerson.name) \
+result = (
+    session.query(SalesPerson.name)
     .filter(SalesPerson.sales_id.not_in(
         select(Orders.sales_id).join(Company).where(Company.name == "RED")
+        )
     )
 )
-
-for row in result:
-    print(row.name)
-
+print_result(result)
 
 session.close()
 connection.close()

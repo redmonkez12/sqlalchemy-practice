@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, Text, and_
 
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -29,9 +30,7 @@ session.add_all(new_products)
 session.commit()
 
 result = session.query(Products.product_id).filter(and_(Products.low_fats == "Y", Products.recyclable == "Y"))
-
-for row in result:
-    print(row)
+print_result(result)
 
 session.close()
 connection.close()

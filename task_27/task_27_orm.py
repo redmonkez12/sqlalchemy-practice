@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, Text, Date, asc, and_
 from sqlalchemy.orm import aliased
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -30,17 +31,18 @@ new_sales = [
 ]
 
 session.add_all(new_sales)
+session.commit()
 
 a = aliased(Sales, name="a")
 b = aliased(Sales, name="b")
 
-result = session.query(a.sale_date, (b.sold_num - a.sold_num).label("diff")) \
-    .join(b, and_(a.sale_date == b.sale_date, a.fruit != b.fruit)) \
-    .where(b.fruit == "apples") \
+result = (
+    session.query(a.sale_date, (b.sold_num - a.sold_num).label("diff"))
+    .join(b, and_(a.sale_date == b.sale_date, a.fruit != b.fruit))
+    .where(b.fruit == "apples")
     .order_by(asc(a.sale_date))
-
-for row in result:
-    print(row)
+)
+print_result(result)
 
 session.close()
 connection.close()

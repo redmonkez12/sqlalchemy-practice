@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, select, func, Text, DateTime, and_, distinct
+from sqlalchemy import Table, Column, Integer, select, func, Text, DateTime, and_, distinct, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -40,18 +41,17 @@ new_content = [
     {"title": "Cinderella", "kids_content": "Y", "content_type": "Movies"},
 ]
 
-connection.execute(tvprogram.insert(), new_tvprogram)
-connection.execute(content.insert(), new_content)
+connection.execute(insert(tvprogram), new_tvprogram)
+connection.execute(insert(content), new_content)
+connection.commmit()
 
-query = select(distinct(content.c.title)).\
-    select_from(tvprogram.outerjoin(content, tvprogram.c.content_id == content.c.content_id)).\
+query = (
+    select(distinct(content.c.title)).
+    select_from(tvprogram.outerjoin(content, tvprogram.c.content_id == content.c.content_id)).
     where(and_(func.to_char(tvprogram.c.program_date, 'yyyy-mm') == '2020-06',
                content.c.kids_content == 'Y', content.c.content_type == 'Movies'))
-
-
+)
 result = connection.execute(query)
-
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

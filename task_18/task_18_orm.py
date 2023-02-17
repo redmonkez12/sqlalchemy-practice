@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, DateTime, Text, distinct, and_, func
 from sqlalchemy.orm import aliased
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -50,17 +51,17 @@ session.commit()
 t = aliased(TvProgram, name="t")
 c = aliased(Content, name="c")
 
-result = session.query(distinct(c.title)) \
-    .select_from(t) \
-    .outerjoin(c, t.content_id == c.content_id) \
+result = (
+    session.query(distinct(c.title))
+    .select_from(t)
+    .outerjoin(c, t.content_id == c.content_id)
     .where(and_(
         func.to_char(t.program_date, "yyyy-mm") == "2020-06",
         c.kids_content == "Y", c.content_type == "Movies"
         )
     )
-
-for row in result:
-    print(row)
+)
+print_result(result)
 
 session.close()
 connection.close()

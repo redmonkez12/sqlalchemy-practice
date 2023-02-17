@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, func, desc, select
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -28,12 +29,13 @@ new_orders = [
 session.add_all(new_orders)
 session.commit()
 
-result = session.query(Order.customer_number)\
-    .group_by(Order.customer_number)\
-    .order_by(desc(func.count())) \
+result = (
+    session.query(Order.customer_number)
+    .group_by(Order.customer_number)
+    .order_by(desc(func.count()))
     .limit(1)
-for row in result:
-    print(row.order_id, row.order_number)
+)
+print_result(result)
 
 session.close()
 connection.close()

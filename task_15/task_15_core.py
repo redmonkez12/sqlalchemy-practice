@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, Text, select
+from sqlalchemy import Table, Column, Integer, Text, select, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -40,14 +41,15 @@ new_students = [
     {"student_name": "John", "department_id": 1},
 ]
 
-connection.execute(department.insert(), new_departments)
-connection.execute(student.insert(), new_students)
+connection.execute(insert(department), new_departments)
+connection.execute(insert(student), new_students)
+connection.commit()
 
-query = select(student.c.student_id, student.c.student_name)\
+query = (
+    select(student.c.student_id, student.c.student_name)
     .where(student.c.department_id.not_in(select(department.c.department_id)))
+)
 result = connection.execute(query)
-
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

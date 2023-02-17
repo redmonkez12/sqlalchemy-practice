@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, Text, Float, and_, func, desc
+from sqlalchemy import Column, Integer, func
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -27,13 +28,15 @@ new_employees = [
 session.add_all(new_employees)
 session.commit()
 
-subquery = session.query(Employee.team_id.label("team_id"), func.count().label("count")).group_by(
-    Employee.team_id).subquery()
-result = session.query(Employee.employee_id, subquery.c.count.label("team_size")) \
+subquery = (
+    session.query(Employee.team_id.label("team_id"), func.count().label("count"))
+    .group_by(Employee.team_id).subquery()
+)
+result = (
+    session.query(Employee.employee_id, subquery.c.count.label("team_size"))
     .outerjoin(subquery, subquery.c.team_id == Employee.team_id)
-
-for row in result:
-    print(row)
+)
+print_result(result)
 
 session.close()
 connection.close()

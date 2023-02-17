@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, func, select, desc
+from sqlalchemy import Table, Column, Integer, func, select, desc, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -23,19 +24,21 @@ new_orders = [
     {"order_number": 6, "customer_number": 3},
 ]
 
-connection.execute(order.insert(), new_orders)
+connection.execute(insert(order), new_orders)
+connection.commit()
 
-# query = select(order.c.customer_number)\
-#     .group_by(order.c.customer_number) \
-#     .order_by(desc(func.count())) \
-#     .limit(1)
+query = (
+    select(order.c.customer_number)
+    .group_by(order.c.customer_number)
+    .order_by(desc(func.count()))
+    .limit(1)
+)
 
 # query = order.select()
-query = select(order.c.order_id, order.c.customer_number)
+# query = select(order.c.order_id, order.c.customer_number)
 # session.query(Order)
 
 result = connection.execute(query)
-for row in result:
-    print(row.order_id, row.customer_number)
+print_result(result)
 
 connection.close()

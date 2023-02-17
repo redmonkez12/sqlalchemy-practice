@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, Numeric, func, null
 
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -46,12 +47,13 @@ session.add_all(new_visits)
 session.add_all(new_transactions)
 session.commit()
 
-result = session.query(Visit.customer_id, func.count(Visit.visit_id).label("count_no_trans")) \
-    .outerjoin(Transaction) \
-    .where(Transaction.transaction_id == null()) \
+result = (
+    session.query(Visit.customer_id, func.count(Visit.visit_id).label("count_no_trans"))
+    .outerjoin(Transaction)
+    .where(Transaction.transaction_id == null())
     .group_by(Visit.customer_id)
-for row in result:
-    print(row)
+)
+print_result(result)
 
 session.close()
 connection.close()

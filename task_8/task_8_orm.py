@@ -3,6 +3,7 @@ from sqlalchemy.sql.functions import coalesce
 from sqlalchemy.orm import aliased
 
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -33,17 +34,18 @@ session.commit()
 e = aliased(Employee)
 ee = aliased(Employee)
 
-result = session.query(e.employee_id, coalesce(ee.salary, 0).label("bonus")) \
+result = (
+    session.query(e.employee_id, coalesce(ee.salary, 0).label("bonus"))
     .outerjoin(ee, and_(
         e.employee_id == ee.employee_id,
         func.mod(e.employee_id, 2) == 1,
         ee.name.not_like("M%")
     )
-) \
+               )
     .order_by(asc(e.employee_id))
+)
 
-for row in result:
-    print(row.employee_id, row.bonus)
+print_result(result)
 
 session.close()
 connection.close()

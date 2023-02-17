@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, Text, Float, and_, func, desc
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -28,12 +29,12 @@ new_movies = [
 session.add_all(new_movies)
 session.commit()
 
-result = session.query(Movie)\
-    .where(and_(func.mod(Movie.movie_id, 2) == 1, Movie.description != "boring")) \
+result = (
+    session.query(Movie)
+    .where(and_(func.mod(Movie.movie_id, 2) == 1, Movie.description != "boring"))
     .order_by(desc(Movie.rating))
-
-for row in result:
-    print(row.movie_id)
+)
+print_result(result)
 
 session.close()
 connection.close()

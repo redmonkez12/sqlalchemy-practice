@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, Text, ForeignKey, func
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -43,13 +44,14 @@ session.add_all(new_employees)
 session.add_all(new_projects)
 session.commit()
 
-result = session.query(
-    Project.project_id,
-    func.round(func.avg(Employee.experience_years), 2).label("average_years"),
-).outerjoin(Employee, Project.employee_id == Employee.employee_id) \
+result = (
+    session.query(
+        Project.project_id,
+        func.round(func.avg(Employee.experience_years), 2).label("average_years"),
+    ).outerjoin(Employee, Project.employee_id == Employee.employee_id)
     .group_by(Project.project_id)
-for row in result:
-    print(row)
+)
+print_result(result)
 
 session.close()
 connection.close()

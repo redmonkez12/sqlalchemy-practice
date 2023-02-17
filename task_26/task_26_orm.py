@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, Text, Date, ForeignKey, Numeric, func
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -41,18 +42,17 @@ new_transaction = [
 ]
 
 session.add_all(new_users)
-session.commit()
 session.add_all(new_transaction)
 session.commit()
 
-result = session.query(User.name, func.sum(Transaction.amount).label("amount")) \
-        .select_from(Transaction) \
-        .join(User, User.user_id == Transaction.user_id) \
-        .group_by(User.name) \
-        .having(func.sum(Transaction.amount) > 10000)
-
-for row in result:
-    print(row)
+result = (
+    session.query(User.name, func.sum(Transaction.amount).label("amount"))
+    .select_from(Transaction)
+    .join(User, User.user_id == Transaction.user_id)
+    .group_by(User.name)
+    .having(func.sum(Transaction.amount) > 10000)
+)
+print_result(result)
 
 session.close()
 connection.close()

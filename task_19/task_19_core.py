@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, Text, ForeignKey, select, func
+from sqlalchemy import Table, Column, Integer, Text, ForeignKey, select, func, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -15,7 +16,8 @@ sale = Table(
     "sales",
     metadata,
     Column("sale_id", Integer, nullable=False, primary_key=True),
-    Column("product_id", Integer, ForeignKey(product.c.product_id, ondelete="CASCADE", onupdate="CASCADE"), nullable=False),
+    Column("product_id", Integer, ForeignKey(product.c.product_id, ondelete="CASCADE", onupdate="CASCADE"),
+           nullable=False),
     Column("year", Integer, nullable=False, primary_key=True),
     Column("quantity", Integer, nullable=False),
     Column("price", Integer, nullable=False),
@@ -35,14 +37,15 @@ new_sales = [
     {"sale_id": 7, "product_id": 200, "year": 2011, "quantity": 15, "price": 9000},
 ]
 
-connection.execute(product.insert(), new_products)
-connection.execute(sale.insert(), new_sales)
+connection.execute(insert(product), new_products)
+connection.execute(insert(sale), new_sales)
+connection.commit()
 
-query = select(sale.c.product_id, func.sum(sale.c.quantity).label("total_quantity"))\
+query = (
+    select(sale.c.product_id, func.sum(sale.c.quantity).label("total_quantity"))
     .group_by(sale.c.product_id)
+)
 result = connection.execute(query)
-
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

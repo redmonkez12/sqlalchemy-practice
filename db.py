@@ -1,9 +1,7 @@
-from dotenv import dotenv_values
-import os
-
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from dotenv import dotenv_values
 
 metadata = MetaData()
 Base = declarative_base()
@@ -15,11 +13,7 @@ def db_connect():
     password = config.get("DB_PASSWORD")
     dbname = config.get("DB_NAME")
 
-    engine = create_engine(
-        f"postgresql+psycopg2://{username}:{password}@localhost:5432/{dbname}",
-        echo=True,
-        # future=True,
-    )
+    engine = create_engine(f"postgresql+psycopg2://{username}:{password}@localhost:5432/{dbname}", echo=True)
     connection = engine.connect()
 
     return engine, connection

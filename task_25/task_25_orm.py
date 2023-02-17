@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, Text, Numeric, ForeignKey, select, or_, null
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -39,17 +40,16 @@ new_bonus = [
 ]
 
 session.add_all(new_employees)
-session.commit()
 session.add_all(new_bonus)
 session.commit()
 
-result = session.query(Employee.name, Bonus.bonus) \
-    .select_from(Employee) \
-    .outerjoin(Bonus, Bonus.employee_id == Employee.employee_id) \
+result = (
+    session.query(Employee.name, Bonus.bonus)
+    .select_from(Employee)
+    .outerjoin(Bonus, Bonus.employee_id == Employee.employee_id)
     .where(or_(Bonus.bonus < 1000, Bonus.bonus == null()))
-
-for row in result:
-    print(row)
+)
+print_result(result)
 
 session.close()
 connection.close()

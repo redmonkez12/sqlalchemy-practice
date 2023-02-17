@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, func, Date, Text, and_, distinct
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -35,13 +36,14 @@ new_activities = [
 session.add_all(new_activities)
 session.commit()
 
-result = session.query(
-    Activity.activity_date.label("day"),
-    func.count(distinct(Activity.user_id))
-).filter(and_(Activity.activity_date > "2019-06-27", Activity.activity_date <= "2019-07-27")) \
+result = (
+    session.query(
+        Activity.activity_date.label("day"),
+        func.count(distinct(Activity.user_id))
+    ).filter(and_(Activity.activity_date > "2019-06-27", Activity.activity_date <= "2019-07-27"))
     .group_by(Activity.activity_date)
-for row in result:
-    print(row)
+)
+print_result(result)
 
 session.close()
 connection.close()

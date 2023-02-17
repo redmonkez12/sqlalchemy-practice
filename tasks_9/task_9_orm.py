@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, Text, Numeric, union
 
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -45,8 +46,7 @@ query = union(
     session.query(Salary.employee_id).where(Salary.employee_id.not_in(session.query(Employee.employee_id))),
 )
 result = session.execute(query)
-for row in result:
-    print(row)
+print_result(result)
 
 session.close()
 connection.close()

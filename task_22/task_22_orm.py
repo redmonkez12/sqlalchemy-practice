@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, func
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -30,12 +31,12 @@ new_actor_director = [
 session.add_all(new_actor_director)
 session.commit()
 
-result = session.query(ActorDirector.actor_id, ActorDirector.director_id) \
-    .group_by(ActorDirector.actor_id, ActorDirector.director_id) \
+result = (
+    session.query(ActorDirector.actor_id, ActorDirector.director_id)
+    .group_by(ActorDirector.actor_id, ActorDirector.director_id)
     .having(func.count() >= 3)
-
-for row in result:
-    print(row)
+)
+print_result(result)
 
 session.close()
 connection.close()

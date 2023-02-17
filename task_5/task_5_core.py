@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Text, Integer, ForeignKey, select, text
+from sqlalchemy import Table, Column, Text, Integer, ForeignKey, select, text, null, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -33,18 +34,25 @@ new_orders = [
     {"customer_id": 1},
 ]
 
-connection.execute(customer.insert(), new_customers)
-connection.execute(order.insert(), new_orders)
+connection.execute(insert(customer), new_customers)
+connection.execute(insert(order), new_orders)
+connection.commit()
 
-# query = select(customer.c.customer_id)\
-#     .where(customer.c.customer_id.not_in(select(order.c.customer_id)))
-
-query = select([customer.c.customer_id])\
-    .select_from(customer.join(order, isouter=True))\
-    .where(order.c.customer_id == None)
+query = (
+    select(customer.c.customer_id)
+    .where(customer.c.customer_id.not_in(select(order.c.customer_id)))
+)
 
 result = connection.execute(query)
-for row in result:
-    print(row)
+print_result(result)
+
+query = (
+    select(customer.c.customer_id)
+    .select_from(customer.join(order, isouter=True))
+    .where(order.c.customer_id == null())
+)
+
+result = connection.execute(query)
+print_result(result)
 
 connection.close()

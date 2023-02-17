@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, Text, Date, func, select, distinct, asc
+from sqlalchemy import Table, Column, Integer, Text, func, select, distinct, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -26,15 +27,16 @@ new_courses = [
     {"student": "I", "class": "Math"},
 ]
 
-connection.execute(course.insert(), new_courses)
+connection.execute(insert(course), new_courses)
+connection.commit()
 
-query = select(course.c["class"])\
-    .group_by(course.c["class"])\
+query = (
+    select(course.c["class"])
+    .group_by(course.c["class"])
     .having(func.count(distinct(course.c.student)) >= 5)
+)
 
 result = connection.execute(query)
-
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

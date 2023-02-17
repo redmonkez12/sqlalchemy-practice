@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, Numeric, ForeignKey, select, func, null, update
+from sqlalchemy import Table, Column, Integer, Numeric, ForeignKey, select, func, null, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -39,16 +40,17 @@ new_transactions = [
     {"transactions_id": 13, "visit_id": 2, "amount": 970},
 ]
 
-connection.execute(visits.insert(), new_visits)
-connection.execute(transactions.insert(), new_transactions)
+connection.execute(insert(visits), new_visits)
+connection.execute(insert(transactions), new_transactions)
+connection.commit()
 
-query = select(visits.c.customer_id, func.count(visits.c.visit_id).label("count_no_trans")) \
-    .select_from(visits.outerjoin(transactions)) \
-    .where(transactions.c.transaction_id == null()) \
+query = (
+    select(visits.c.customer_id, func.count(visits.c.visit_id).label("count_no_trans"))
+    .select_from(visits.outerjoin(transactions))
+    .where(transactions.c.transaction_id == null())
     .group_by(visits.c.customer_id)
+)
 result = connection.execute(query)
-
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

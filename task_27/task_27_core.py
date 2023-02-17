@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, Text, Date, select, asc, and_
+from sqlalchemy import Table, Column, Integer, Text, Date, select, asc, and_, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -26,18 +27,19 @@ new_sales = [
     {"sale_date": "2020-05-04", "fruit": "oranges", "sold_num": 16},
 ]
 
-connection.execute(sale.insert(), new_sales)
+connection.execute(insert(sale), new_sales)
+connection.commit()
 
 a = sale.alias("a")
 b = sale.alias("b")
 
-query = select(a.c.sale_date, (b.c.sold_num - a.c.sold_num).label("diff")) \
-    .select_from(a.join(b, and_(a.c.sale_date == b.c.sale_date, a.c.fruit != b.c.fruit))) \
-    .where(b.c.fruit == "apples") \
+query = (
+    select(a.c.sale_date, (b.c.sold_num - a.c.sold_num).label("diff"))
+    .select_from(a.join(b, and_(a.c.sale_date == b.c.sale_date, a.c.fruit != b.c.fruit)))
+    .where(b.c.fruit == "apples")
     .order_by(asc(a.c.sale_date))
+)
 result = connection.execute(query)
-
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

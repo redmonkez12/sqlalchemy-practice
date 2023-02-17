@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, func, select, Date, Text, and_, distinct
+from sqlalchemy import Table, Column, Integer, func, select, Date, Text, and_, distinct, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -29,16 +30,17 @@ new_activities = [
     {"user_id": 4, "session_id": 3, "activity_date": "2019-06-25", "activity_type": "end_session"},
 ]
 
-connection.execute(activity.insert(), new_activities)
+connection.execute(insert(activity), new_activities)
+connection.commit()
 
-query = select(
-    activity.c.activity_date.label("day"),
-    func.count(distinct(activity.c.user_id)).label("active_users")
-).where(and_(activity.c.activity_date > "2019-06-27", activity.c.activity_date <= "2019-07-27")) \
+query = (
+    select(
+        activity.c.activity_date.label("day"),
+        func.count(distinct(activity.c.user_id)).label("active_users")
+    ).where(and_(activity.c.activity_date > "2019-06-27", activity.c.activity_date <= "2019-07-27"))
     .group_by(activity.c.activity_date)
+)
 result = connection.execute(query)
-
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

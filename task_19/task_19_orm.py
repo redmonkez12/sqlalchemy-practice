@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, ForeignKey, func, Text
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -41,10 +42,11 @@ session.add_all(new_products)
 session.add_all(new_sales)
 session.commit()
 
-result = session.query(Sale.product_id, func.sum(Sale.quantity).label("total_quantity"))\
+result = (
+    session.query(Sale.product_id, func.sum(Sale.quantity).label("total_quantity"))
     .group_by(Sale.product_id)
-for row in result:
-    print(row)
+)
+print_result(result)
 
 session.close()
 connection.close()

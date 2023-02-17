@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Text, Integer, select, or_, null
+from sqlalchemy import Table, Column, Text, Integer, select, or_, null, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -23,11 +24,11 @@ new_customers = [
     {"name": "Mark", "referee_id": 2},
 ]
 
-connection.execute(customer.insert(), new_customers)
+connection.execute(insert(customer), new_customers)
+connection.commit()
 
-query = select([customer.c.name]).where(or_(customer.c.referee_id != 2, customer.c.referee_id == null()))
+query = select(customer.c.name).where(or_(customer.c.referee_id != 2, customer.c.referee_id == null()))
 result = connection.execute(query)
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

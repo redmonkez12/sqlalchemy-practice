@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, BigInteger, Text, union, select
+from sqlalchemy import Column, Integer, BigInteger, Text, union, select, or_
 
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -31,7 +32,8 @@ new_countries = [
 session.add_all(new_countries)
 session.commit()
 
-# result = session.query(Country).filter(or_(Country.population >= 25000000, Country.area >= 3000000))
+result = session.query(Country).filter(or_(Country.population >= 25000000, Country.area >= 3000000))
+print_result(result)
 
 query = union(
     select(Country.name, Country.continent, Country.area).where(Country.population >= 25000000),
@@ -39,9 +41,7 @@ query = union(
 )
 
 result = session.execute(query)
-
-for row in result:
-    print(row.name)
+print_result(result)
 
 session.close()
 connection.close()

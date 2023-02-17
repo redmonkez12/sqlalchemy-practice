@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Text, Integer, select, or_, union
+from sqlalchemy import Table, Column, Text, Integer, select, or_, union, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -25,22 +26,22 @@ new_countries = [
 
 create_tables(engine)
 
-connection.execute(country.insert(), new_countries)
+connection.execute(insert(country), new_countries)
+connection.commit()
 
-countries = select(country.c.name, country.c.continent, country.c.area)\
+countries = (
+    select(country.c.name, country.c.continent, country.c.area)
     .where(or_(country.c.population >= 25000000, country.c.area >= 3000000))
+)
 
 result = connection.execute(countries)
-for row in result:
-    print(row)
+print_result(result)
 
 countries = union(
     select(country.c.name, country.c.continent, country.c.area).where(country.c.population >= 25000000),
     select(country.c.name, country.c.continent, country.c.area).where(country.c.area >= 3000000)
 )
 result = connection.execute(countries)
-
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

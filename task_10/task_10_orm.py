@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, func
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -31,9 +32,7 @@ session.commit()
 
 subquery = session.query(Number.num).group_by(Number.num).having(func.count(Number.num) == 1).subquery()
 result = session.query(func.max(subquery.c.num).label("num"))
-
-for row in result:
-    print(row)
+print_result(result)
 
 session.close()
 connection.close()

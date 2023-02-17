@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, Text, Date, func, select, distinct, asc
+from sqlalchemy import Table, Column, Integer, Text, Date, func, select, distinct, asc, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -38,21 +39,22 @@ new_logins = [
     {"id": 1, "login_date": "2020-06-10"},
 ]
 
-connection.execute(account.insert(), new_accounts)
-connection.execute(login.insert(), new_logins)
+connection.execute(insert(account), new_accounts)
+connection.execute(insert(login), new_logins)
+connection.commit()
 
 cte1 = select(distinct(login.c.id).label("id"), login.c.login_date).cte("t")
 cte2 = select(
     cte1.c.id, (cte1.c.login_date - func.lag(cte1.c.login_date, 4)
                 .over(partition_by=cte1.c.id, order_by=cte1.c.login_date)).label("count")
 ).cte("t1")
-query = select(distinct(cte2.c.id).label("id"), account.c.name) \
-    .select_from(cte2.join(account, account.c.id == cte2.c.id)) \
-    .where(cte2.c.count == 4) \
+query = (
+    select(distinct(cte2.c.id).label("id"), account.c.name)
+    .select_from(cte2.join(account, account.c.id == cte2.c.id))
+    .where(cte2.c.count == 4)
     .order_by(asc(cte2.c.id))
+)
 result = connection.execute(query)
-
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

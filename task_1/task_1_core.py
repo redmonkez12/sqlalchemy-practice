@@ -1,7 +1,8 @@
 from sqlalchemy import (
-    Table, Column, Text, Integer, Numeric, Date, select, ForeignKey, Index, UniqueConstraint)
+    Table, Column, Text, Integer, Numeric, Date, select, ForeignKey, insert, UniqueConstraint)
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -60,18 +61,21 @@ new_orders = [
     {"order_date": "2014-01-01", "company_id": 1, "sales_id": 4, "amount": 25000},
 ]
 
-connection.execute(sales_person.insert(), new_sales_people)
-connection.execute(company.insert(), new_companies)
-connection.execute(order.insert(), new_orders)
+connection.execute(insert(sales_person), new_sales_people)
+connection.execute(insert(company), new_companies)
+connection.execute(insert(order), new_orders)
+connection.commit()
 
-query = select(sales_person.c.name)\
+query = (
+    select(sales_person.c.name)
     .where(
-    sales_person.c.sales_id.not_in(
-        select([order.c.sales_id]).select_from(order.join(company)).where(company.c.name == "RED")
+        sales_person.c.sales_id.not_in(
+            select(order.c.sales_id).select_from(order.join(company)).where(company.c.name == "RED")
+        )
     )
 )
+
 result = connection.execute(query)
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

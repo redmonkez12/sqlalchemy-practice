@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, Text, ForeignKey, func, Numeric, case, Date, and_
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -18,7 +19,7 @@ class Sale(Base):
     sales_id = Column(Integer, primary_key=True)
     seller_id = Column(Integer, nullable=False)
     product_id = Column(Integer, ForeignKey(Product.product_id, ondelete="CASCADE", onupdate="CASCADE"),
-           nullable=False)
+                        nullable=False)
     buyer_id = Column(Integer, nullable=False)
     sale_date = Column(Date, nullable=False)
     quantity = Column(Integer, nullable=False)
@@ -46,17 +47,17 @@ session.add_all(new_products)
 session.add_all(new_sales)
 session.commit()
 
-result = session.query(Sale.buyer_id)\
-    .join(Product, Sale.product_id == Product.product_id)\
-    .group_by(Sale.buyer_id)\
+result = (
+    session.query(Sale.buyer_id)
+    .join(Product, Sale.product_id == Product.product_id)
+    .group_by(Sale.buyer_id)
     .having(and_(
         func.sum(case((Product.product_name == "S8", 1), else_=0)) > 0,
         func.sum(case((Product.product_name == "iPhone", 1), else_=0)) == 0
-        )
     )
-
-for row in result:
-    print(row)
+    )
+)
+print_result(result)
 
 session.close()
 connection.close()

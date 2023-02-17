@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, Text, or_, null
 
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -30,8 +31,7 @@ session.add_all(new_customers)
 session.commit()
 
 result = session.query(Customer.name).filter(or_(Customer.referee_id != 2, Customer.referee_id == null()))
-for row in result:
-    print(row)
+print_result(result)
 
 session.close()
 connection.close()

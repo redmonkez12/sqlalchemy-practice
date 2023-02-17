@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, Text, ForeignKey, func, select
+from sqlalchemy import Table, Column, Integer, Text, ForeignKey, func, select, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -37,17 +38,18 @@ new_projects = [
     {"project_id": 2, "employee_id": 4},
 ]
 
-connection.execute(employee.insert(), new_employees)
-connection.execute(project.insert(), new_projects)
+connection.execute(insert(employee), new_employees)
+connection.execute(insert(project), new_projects)
+connection.commit()
 
-query = select(
-    project.c.project_id,
-    func.round(func.avg(employee.c.experience_years), 2).label("average_years"),
-).select_from(project.outerjoin(employee, project.c.employee_id == employee.c.employee_id)) \
+query = (
+    select(
+        project.c.project_id,
+        func.round(func.avg(employee.c.experience_years), 2).label("average_years"),
+    ).select_from(project.outerjoin(employee, project.c.employee_id == employee.c.employee_id))
     .group_by(project.c.project_id)
+)
 result = connection.execute(query)
-
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

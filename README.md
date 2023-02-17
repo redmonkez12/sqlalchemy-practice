@@ -1,9 +1,4 @@
-# How to
-
-## Each task has a task description
-## Each task has sqlalchemy one core and one orm solution
-
-# Create env locally
+# Jak vytvorit venv
 
 ## Windows
 

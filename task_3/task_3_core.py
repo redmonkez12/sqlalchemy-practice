@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Text, Integer, select, and_
+from sqlalchemy import Table, Column, Text, Integer, select, and_, insert
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -22,11 +23,11 @@ new_products = [
     {"low_fats": "N", "recyclable": "N"},
 ]
 
-connection.execute(products.insert(new_products))
+connection.execute(insert(products), new_products)
+connection.commit()
 
 query = select(products.c.product_id).where(and_(products.c.low_fats == "Y", products.c.recyclable == "Y"))
 result = connection.execute(query)
-for row in result:
-    print(row)
+print_result(result)
 
 connection.close()

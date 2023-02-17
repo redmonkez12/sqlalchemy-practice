@@ -1,7 +1,8 @@
-from sqlalchemy import Table, Column, Integer, Text, Numeric, select, and_, func, asc
+from sqlalchemy import Table, Column, Integer, Text, Numeric, select, and_, func, asc, insert
 from sqlalchemy.sql.functions import coalesce
 
 from db import db_connect, create_tables, metadata
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -23,17 +24,26 @@ new_employees = [
     {"name": "Kannon", "salary": 7700},
 ]
 
-connection.execute(employee.insert(), new_employees)
+connection.execute(insert(employee), new_employees)
+connection.commit()
 
 e = employee.alias("e")
 ee = employee.alias("ee")
 
-query = select(e.c.employee_id, coalesce(ee.c.salary, 0).label("bonus"))\
-    .select_from(e.outerjoin(ee, and_(e.c.employee_id == ee.c.employee_id, func.mod(e.c.employee_id, 2) == 1, ee.c.name.notlike("M%"))))\
+query = (
+    select(e.c.employee_id, coalesce(ee.c.salary, 0).label("bonus"))
+    .select_from(
+        e.outerjoin(ee,
+                    and_(e.c.employee_id == ee.c.employee_id,
+                         func.mod(e.c.employee_id, 2) == 1,
+                         ee.c.name.notlike("M%")
+                         )
+                    )
+    )
     .order_by(asc(e.c.employee_id))
+)
 
 result = connection.execute(query)
-for row in result:
-    print(row.employee_id, row.bonus)
+print_result(result)
 
 connection.close()

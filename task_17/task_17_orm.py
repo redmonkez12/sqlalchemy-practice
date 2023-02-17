@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, Date
 from sqlalchemy.orm import aliased
 from db import db_connect, create_session, Base, create_tables_orm
+from utils import print_result
 
 engine, connection = db_connect()
 
@@ -30,13 +31,13 @@ session.commit()
 a = aliased(Weather)
 b = aliased(Weather)
 
-result = session.query(b.weather_id) \
-    .select_from(a) \
-    .join(b, a.record_date == b.record_date - 1) \
+result = (
+    session.query(b.weather_id)
+    .select_from(a)
+    .join(b, a.record_date == b.record_date - 1)
     .where(b.temperature > a.temperature)
-
-for row in result:
-    print(row)
+)
+print_result(result)
 
 session.close()
 connection.close()
