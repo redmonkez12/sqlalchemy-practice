@@ -1,4 +1,4 @@
-Napište dotaz, který vypíše kupce, který si koupil S8 ale ne iPhone.
+Write a query that displays customers who bought an S8 but not an iPhone.
 
     CREATE TABLE IF NOT EXISTS product (
       product_id serial PRIMARY KEY,

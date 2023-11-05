@@ -1,11 +1,8 @@
 from sqlalchemy import Column, Integer, Date
-from sqlalchemy.orm import aliased
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from sqlalchemy.orm import aliased, Session
+from db import db_connect, Base, create_tables_orm
 
-engine, connection = db_connect()
-
-session = create_session(engine)
+engine = db_connect()
 
 
 class Weather(Base):
@@ -25,19 +22,17 @@ new_weather = [
     Weather(record_date="2015-01-05", temperature=30),
 ]
 
-session.add_all(new_weather)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_weather)
+    session.commit()
 
-a = aliased(Weather)
-b = aliased(Weather)
+    a = aliased(Weather)
+    b = aliased(Weather)
 
-result = (
-    session.query(b.weather_id)
-    .select_from(a)
-    .join(b, a.record_date == b.record_date - 1)
-    .where(b.temperature > a.temperature)
-)
-print_result(result)
-
-session.close()
-connection.close()
+    result = (
+        session.query(b.weather_id)
+        .select_from(a)
+        .join(b, a.record_date == b.record_date - 1)
+        .where(b.temperature > a.temperature)
+    )
+    print(result.all())

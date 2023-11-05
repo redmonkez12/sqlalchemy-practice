@@ -1,9 +1,8 @@
 from sqlalchemy import Table, Column, Integer, Text, select, insert
 
 from db import db_connect, create_tables, metadata
-from utils import print_result
 
-engine, connection = db_connect()
+engine = db_connect()
 
 department = Table(
     "departments",
@@ -41,15 +40,15 @@ new_students = [
     {"student_name": "John", "department_id": 1},
 ]
 
-connection.execute(insert(department), new_departments)
-connection.execute(insert(student), new_students)
-connection.commit()
+with engine.connect() as connection:
+    connection.execute(insert(department), new_departments)
+    connection.execute(insert(student), new_students)
+    connection.commit()
 
-query = (
-    select(student.c.student_id, student.c.student_name)
-    .where(student.c.department_id.not_in(select(department.c.department_id)))
-)
-result = connection.execute(query)
-print_result(result)
+    query = (
+        select(student.c.student_id, student.c.student_name)
+        .where(student.c.department_id.not_in(select(department.c.department_id)))
+    )
 
-connection.close()
+    result = connection.execute(query)
+    print(result.all())

@@ -1,9 +1,8 @@
 from sqlalchemy import Table, Column, Integer, Text, Date, ForeignKey, Numeric, select, func, insert
 
 from db import db_connect, create_tables, metadata
-from utils import print_result
 
-engine, connection = db_connect()
+engine = db_connect()
 
 user = Table(
     "users",
@@ -39,17 +38,16 @@ new_transaction = [
     {"transacted_on": "2020-09-1", "amount": -4000, "user_id": 3},
 ]
 
-connection.execute(insert(user), new_users)
-connection.execute(insert(transaction), new_transaction)
-connection.commit()
+with engine.connect() as connection:
+    connection.execute(insert(user), new_users)
+    connection.execute(insert(transaction), new_transaction)
+    connection.commit()
 
-query = (
-    select(user.c.name, func.sum(transaction.c.amount).label("amount"))
-    .select_from(transaction.join(user, user.c.user_id == transaction.c.user_id))
-    .group_by(user.c.name)
-    .having(func.sum(transaction.c.amount) > 10000)
-)
-result = connection.execute(query)
-print_result(result)
-
-connection.close()
+    query = (
+        select(user.c.name, func.sum(transaction.c.amount).label("amount"))
+        .select_from(transaction.join(user, user.c.user_id == transaction.c.user_id))
+        .group_by(user.c.name)
+        .having(func.sum(transaction.c.amount) > 10000)
+    )
+    result = connection.execute(query)
+    print(result.all())

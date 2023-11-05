@@ -1,4 +1,4 @@
-Najděte velikost týmu každého zaměstnance
+Find the team size of each employee.
 
     SELECT employee_id, count AS team_size
     FROM Employee

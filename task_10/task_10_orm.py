@@ -1,11 +1,8 @@
 from sqlalchemy import Column, Integer, func
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
-
-session = create_session(engine)
-
+engine = db_connect()
 
 class Number(Base):
     __tablename__ = "numbers"
@@ -27,12 +24,11 @@ new_numbers = [
     Number(num=6),
 ]
 
-session.add_all(new_numbers)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_numbers)
+    session.commit()
 
-subquery = session.query(Number.num).group_by(Number.num).having(func.count(Number.num) == 1).subquery()
-result = session.query(func.max(subquery.c.num).label("num"))
-print_result(result)
+    subquery = session.query(Number.num).group_by(Number.num).having(func.count(Number.num) == 1).subquery()
+    result = session.query(func.max(subquery.c.num).label("num"))
 
-session.close()
-connection.close()
+    print(result.all())

@@ -1,4 +1,4 @@
- Vypište předměty, které mají více než 5 studentů
+List the subjects that have more than 5 students.
         
     CREATE TABLE courses (
        student_id bigserial PRIMARY KEY,

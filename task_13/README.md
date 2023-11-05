@@ -1,4 +1,4 @@
-Mám tabulku ve které mám customery a jejich idečka objednávek. Chci najít zákazníka,z který si objednal nejvícekrát
+Write a query that will display the customer who has placed the most orders.
 
     SELECT
         customer_number

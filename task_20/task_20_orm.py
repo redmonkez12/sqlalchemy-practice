@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, Text, ForeignKey, func
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
-
-session = create_session(engine)
+engine = db_connect()
 
 
 class Employee(Base):
@@ -40,18 +38,17 @@ new_projects = [
     Project(project_id=2, employee_id=4),
 ]
 
-session.add_all(new_employees)
-session.add_all(new_projects)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_employees)
+    session.add_all(new_projects)
+    session.commit()
 
-result = (
-    session.query(
-        Project.project_id,
-        func.round(func.avg(Employee.experience_years), 2).label("average_years"),
-    ).outerjoin(Employee, Project.employee_id == Employee.employee_id)
-    .group_by(Project.project_id)
-)
-print_result(result)
+    result = (
+        session.query(
+            Project.project_id,
+            func.round(func.avg(Employee.experience_years), 2).label("average_years"),
+        ).outerjoin(Employee, Project.employee_id == Employee.employee_id)
+        .group_by(Project.project_id)
+    )
 
-session.close()
-connection.close()
+    print(result.all())

@@ -1,4 +1,4 @@
-Vypište jména zaměstnanců a jejich bonusy u kterých je hodnota bonusů menší než 1000
+List the names of employees and their bonuses where the bonus value is less than 1000.
 
     CREATE TABLE IF NOT EXISTS employee (
       employee_id bigserial PRIMARY KEY,

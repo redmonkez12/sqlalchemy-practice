@@ -1,4 +1,4 @@
-Napište dotaz, který najde uživatele se přihlásil alespoň pět dní po sobě. Seřaďte podle id
+Write a query that finds users who have logged in for at least five consecutive days. Sort them by ID.
 
     CREATE TABLE IF NOT EXISTS accounts (
       id SERIAL PRIMARY KEY,

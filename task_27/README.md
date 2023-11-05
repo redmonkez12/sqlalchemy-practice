@@ -1,4 +1,4 @@
-Reportuji kazde den pocet prodanych jablek a pomerancu. Chci vedet jaky byl rozdil prodanych kusu kazdy den.
+I report the daily number of sold apples and oranges. I want to know the difference in the number of units sold each day.
 
     CREATE TABLE sales(
       sale_id bigserial PRIMARY KEY,

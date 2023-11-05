@@ -1,4 +1,4 @@
-Vypište největší číslo, které se vyskytuje pouze jednou
+List the largest number that appears only once.
 
     SELECT
         MAX(num) AS num

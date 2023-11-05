@@ -1,4 +1,4 @@
-Napiste dotaz ktery vypis stav uctu ktere maji vetsi zustatek nez 10000 kc
+Write a query to display the account balances that have a balance greater than 10,000 USD
 
     CREATE TABLE users(
      user_id bigserial PRIMARY KEY,

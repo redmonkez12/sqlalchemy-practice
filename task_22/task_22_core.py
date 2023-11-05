@@ -1,9 +1,8 @@
 from sqlalchemy import Table, Column, Integer, select, func, insert
 
 from db import db_connect, create_tables, metadata
-from utils import print_result
 
-engine, connection = db_connect()
+engine = db_connect()
 
 actor_director = Table(
     "actor_director",
@@ -25,15 +24,15 @@ new_actor_director = [
     {"actor_id": 2, "director_id": 1, "timestamp": 6},
 ]
 
-connection.execute(insert(actor_director), new_actor_director)
-connection.commmit()
+with engine.connect() as connection:
+    connection.execute(insert(actor_director), new_actor_director)
+    connection.commit()
 
-query = (
-    select(actor_director.c.actor_id, actor_director.c.director_id)
-    .group_by(actor_director.c.actor_id, actor_director.c.director_id)
-    .having(func.count() >= 3)
-)
-result = connection.execute(query)
-print_result(result)
+    query = (
+        select(actor_director.c.actor_id, actor_director.c.director_id)
+        .group_by(actor_director.c.actor_id, actor_director.c.director_id)
+        .having(func.count() >= 3)
+    )
 
-connection.close()
+    result = connection.execute(query)
+    print(result.all())

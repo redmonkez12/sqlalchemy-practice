@@ -1,9 +1,8 @@
 from sqlalchemy import Table, Column, Integer, Text, func, select, distinct, insert
 
 from db import db_connect, create_tables, metadata
-from utils import print_result
 
-engine, connection = db_connect()
+engine = db_connect()
 
 course = Table(
     "courses",
@@ -27,16 +26,15 @@ new_courses = [
     {"student": "I", "class": "Math"},
 ]
 
-connection.execute(insert(course), new_courses)
-connection.commit()
+with engine.connect() as connection:
+    connection.execute(insert(course), new_courses)
+    connection.commit()
 
-query = (
-    select(course.c["class"])
-    .group_by(course.c["class"])
-    .having(func.count(distinct(course.c.student)) >= 5)
-)
+    query = (
+        select(course.c["class"])
+        .group_by(course.c["class"])
+        .having(func.count(distinct(course.c.student)) >= 5)
+    )
 
-result = connection.execute(query)
-print_result(result)
-
-connection.close()
+    result = connection.execute(query)
+    print(result.all())

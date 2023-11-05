@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, Text, Float, and_, func, desc
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
-
-session = create_session(engine)
+engine = db_connect()
 
 
 class Movie(Base):
@@ -15,6 +13,8 @@ class Movie(Base):
     description = Column(Text, nullable=False)
     rating = Column(Float, nullable=False)
 
+    def __repr__(self):
+        return f"{self.movie}"
 
 create_tables_orm(engine)
 
@@ -26,15 +26,14 @@ new_movies = [
     Movie(movie="House card", description="Interesting", rating=9.1),
 ]
 
-session.add_all(new_movies)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_movies)
+    session.commit()
 
-result = (
-    session.query(Movie)
-    .where(and_(func.mod(Movie.movie_id, 2) == 1, Movie.description != "boring"))
-    .order_by(desc(Movie.rating))
-)
-print_result(result)
+    result = (
+        session.query(Movie)
+        .where(and_(func.mod(Movie.movie_id, 2) == 1, Movie.description != "boring"))
+        .order_by(desc(Movie.rating))
+    )
 
-session.close()
-connection.close()
+    print(result.all())

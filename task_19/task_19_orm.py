@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, ForeignKey, func, Text
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
-
-session = create_session(engine)
+engine = db_connect()
 
 
 class Product(Base):
@@ -38,15 +36,14 @@ new_sales = [
     Sale(sale_id=7, product_id=200, year=2011, quantity=15, price=9000),
 ]
 
-session.add_all(new_products)
-session.add_all(new_sales)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_products)
+    session.add_all(new_sales)
+    session.commit()
 
-result = (
-    session.query(Sale.product_id, func.sum(Sale.quantity).label("total_quantity"))
-    .group_by(Sale.product_id)
-)
-print_result(result)
+    result = (
+        session.query(Sale.product_id, func.sum(Sale.quantity).label("total_quantity"))
+        .group_by(Sale.product_id)
+    )
 
-session.close()
-connection.close()
+    print(result.all())

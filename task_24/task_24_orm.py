@@ -1,10 +1,8 @@
-from sqlalchemy import Column, Integer, Text, func, Date, distinct, asc
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from sqlalchemy import Column, Integer, Text, func, distinct
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
-
-session = create_session(engine)
+engine = db_connect()
 
 
 class Course(Base):
@@ -12,7 +10,7 @@ class Course(Base):
 
     student_id = Column(Integer, primary_key=True)
     student = Column(Text, nullable=False)
-    class_ = Column(Text, nullable=False)
+    class_ = Column("class", Text, nullable=False)
 
 
 create_tables_orm(engine)
@@ -29,15 +27,14 @@ new_courses = [
     Course(student="HI", class_="Math"),
 ]
 
-session.add_all(new_courses)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_courses)
+    session.commit()
 
-result = (
-    session.query(Course.class_)
-    .group_by(Course.class_)
-    .having(func.count(distinct(Course.student)) >= 5)
-)
-print_result(result)
+    result = (
+        session.query(Course.class_)
+        .group_by(Course.class_)
+        .having(func.count(distinct(Course.student)) >= 5)
+    )
 
-session.close()
-connection.close()
+    print(result.all())

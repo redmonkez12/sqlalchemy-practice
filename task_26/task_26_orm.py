@@ -1,11 +1,8 @@
 from sqlalchemy import Column, Integer, Text, Date, ForeignKey, Numeric, func
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
-
-session = create_session(engine)
-
+engine = db_connect()
 
 class User(Base):
     __tablename__ = "users"
@@ -41,18 +38,18 @@ new_transaction = [
     Transaction(transacted_on="2020-09-01", amount=-4000, user_id=3),
 ]
 
-session.add_all(new_users)
-session.add_all(new_transaction)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_users)
+    session.commit()
+    session.add_all(new_transaction)
+    session.commit()
 
-result = (
-    session.query(User.name, func.sum(Transaction.amount).label("amount"))
-    .select_from(Transaction)
-    .join(User, User.user_id == Transaction.user_id)
-    .group_by(User.name)
-    .having(func.sum(Transaction.amount) > 10000)
-)
-print_result(result)
+    result = (
+        session.query(User.name, func.sum(Transaction.amount).label("amount"))
+        .select_from(Transaction)
+        .join(User, User.user_id == Transaction.user_id)
+        .group_by(User.name)
+        .having(func.sum(Transaction.amount) > 10000)
+    )
 
-session.close()
-connection.close()
+    print(result.all())

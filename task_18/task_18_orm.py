@@ -1,9 +1,8 @@
 from sqlalchemy import Column, Integer, DateTime, Text, distinct, and_, func
-from sqlalchemy.orm import aliased
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from sqlalchemy.orm import aliased, Session
+from db import db_connect, Base, create_tables_orm
 
-engine, connection = db_connect()
+engine = db_connect()
 
 
 class TvProgram(Base):
@@ -25,8 +24,6 @@ class Content(Base):
 
 create_tables_orm(engine)
 
-session = create_session(engine)
-
 new_tvprogram = [
     TvProgram(program_date="2020-06-10 08:00", content_id=1, channel="LC-Channel"),
     TvProgram(program_date="2020-05-11 12:00", content_id=2, channel="LC-Channel"),
@@ -44,24 +41,23 @@ new_content = [
     Content(title="Cinderella", kids_content="Y", content_type="Movies"),
 ]
 
-session.add_all(new_tvprogram)
-session.add_all(new_content)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_tvprogram)
+    session.add_all(new_content)
+    session.commit()
 
-t = aliased(TvProgram, name="t")
-c = aliased(Content, name="c")
+    t = aliased(TvProgram, name="t")
+    c = aliased(Content, name="c")
 
-result = (
-    session.query(distinct(c.title))
-    .select_from(t)
-    .outerjoin(c, t.content_id == c.content_id)
-    .where(and_(
-        func.to_char(t.program_date, "yyyy-mm") == "2020-06",
-        c.kids_content == "Y", c.content_type == "Movies"
+    result = (
+        session.query(distinct(c.title))
+        .select_from(t)
+        .outerjoin(c, t.content_id == c.content_id)
+        .where(and_(
+            func.to_char(t.program_date, "yyyy-mm") == "2020-06",
+            c.kids_content == "Y", c.content_type == "Movies"
+            )
         )
     )
-)
-print_result(result)
 
-session.close()
-connection.close()
+    print(result.all())

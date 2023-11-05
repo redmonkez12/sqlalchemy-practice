@@ -1,4 +1,4 @@
-Napište dotaz, který vypíše utrátu každého uživatele. Seřaďte utrátu od nějvětší po nejmenší.
+Write a query that displays the expenditure of each user. Sort the expenditure from highest to lowest.
 
     SELECT
         s.user_id,

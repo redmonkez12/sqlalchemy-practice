@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, func
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
-
-session = create_session(engine)
+engine = db_connect()
 
 
 class ActorDirector(Base):
@@ -28,15 +26,14 @@ new_actor_director = [
     ActorDirector(actor_id=2, director_id=1, timestamp=6),
 ]
 
-session.add_all(new_actor_director)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_actor_director)
+    session.commit()
 
-result = (
-    session.query(ActorDirector.actor_id, ActorDirector.director_id)
-    .group_by(ActorDirector.actor_id, ActorDirector.director_id)
-    .having(func.count() >= 3)
-)
-print_result(result)
+    result = (
+        session.query(ActorDirector.actor_id, ActorDirector.director_id)
+        .group_by(ActorDirector.actor_id, ActorDirector.director_id)
+        .having(func.count() >= 3)
+    )
 
-session.close()
-connection.close()
+    print(result.all())

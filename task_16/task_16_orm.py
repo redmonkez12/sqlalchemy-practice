@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, func
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
-
-session = create_session(engine)
+engine = db_connect()
 
 
 class Employee(Base):
@@ -25,18 +23,17 @@ new_employees = [
     Employee(team_id=9),
 ]
 
-session.add_all(new_employees)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_employees)
+    session.commit()
 
-subquery = (
-    session.query(Employee.team_id.label("team_id"), func.count().label("count"))
-    .group_by(Employee.team_id).subquery()
-)
-result = (
-    session.query(Employee.employee_id, subquery.c.count.label("team_size"))
-    .outerjoin(subquery, subquery.c.team_id == Employee.team_id)
-)
-print_result(result)
+    subquery = (
+        session.query(Employee.team_id.label("team_id"), func.count().label("count"))
+        .group_by(Employee.team_id).subquery()
+    )
+    result = (
+        session.query(Employee.employee_id, subquery.c.count.label("team_size"))
+        .outerjoin(subquery, subquery.c.team_id == Employee.team_id)
+    )
 
-session.close()
-connection.close()
+    print(result.all())

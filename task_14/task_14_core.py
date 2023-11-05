@@ -1,9 +1,8 @@
 from sqlalchemy import Table, Column, Integer, Text, Float, func, and_, desc, insert
 
 from db import db_connect, create_tables, metadata
-from utils import print_result
 
-engine, connection = db_connect()
+engine = db_connect()
 
 movie = Table(
     "movies",
@@ -24,15 +23,14 @@ new_movies = [
     {"movie": "House card", "description": "Interesting", "rating": 9.1},
 ]
 
-connection.execute(insert(movie), new_movies)
-connection.commit()
+with engine.connect() as connection:
+    connection.execute(insert(movie), new_movies)
+    connection.commit()
 
-query = (
-    movie.select()
-    .where(and_(func.mod(movie.c.movie_id, 2) == 1, movie.c.description != "boring"))
-    .order_by(desc(movie.c.rating))
-)
-result = connection.execute(query)
-print_result(result)
-
-connection.close()
+    query = (
+        movie.select()
+        .where(and_(func.mod(movie.c.movie_id, 2) == 1, movie.c.description != "boring"))
+        .order_by(desc(movie.c.rating))
+    )
+    result = connection.execute(query)
+    print(result.all())

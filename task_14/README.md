@@ -1,4 +1,4 @@
-Chci vyhledávat jenom filmy, které mají sudé idečko a v popisku nemají boring
+I want to search for movies that have even IDs and do not have 'boring' in their description.
 
     SELECT *
     FROM movies

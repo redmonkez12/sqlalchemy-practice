@@ -1,9 +1,8 @@
 from sqlalchemy import Table, Column, Integer, select, func, insert
 
 from db import db_connect, create_tables, metadata
-from utils import print_result
 
-engine, connection = db_connect()
+engine = db_connect()
 
 employee = Table(
     "employees",
@@ -23,24 +22,17 @@ new_employees = [
     {"team_id": 9},
 ]
 
-connection.execute(insert(employee), new_employees)
-connection.commit()
+with engine.connect() as connection:
+    connection.execute(insert(employee), new_employees)
+    connection.commit()
 
-# subquery = select(employee.c.team_id.label("team_id"), func.count().label("count")).group_by(
-#     employee.c.team_id).subquery()
-# query = select(employee.c.employee_id, subquery.c.count.label("team_size")) \
-#     .select_from(employee.outerjoin(subquery, subquery.c.team_id == employee.c.team_id)
-#                  )
-
-subquery = (
-    select(employee.c.team_id.label("team_id"), func.count().label("count"))
-    .group_by(employee.c.team_id).alias("team")
-)
-query = (
-    select(employee.c.employee_id, subquery.c.count.label("team_size"))
-    .select_from(employee.outerjoin(subquery, subquery.c.team_id == employee.c.team_idx))
-)
-result = connection.execute(query)
-print_result(result)
-
-connection.close()
+    subquery = (
+        select(employee.c.team_id.label("team_id"), func.count().label("count"))
+        .group_by(employee.c.team_id).alias("team")
+    )
+    query = (
+        select(employee.c.employee_id, subquery.c.count.label("team_size"))
+        .select_from(employee.outerjoin(subquery, subquery.c.team_id == employee.c.team_id))
+    )
+    result = connection.execute(query)
+    print(result.all())

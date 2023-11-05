@@ -1,4 +1,4 @@
- Napište dotaz, který vypíše celkové prodané množství pro každý produkt
+Write a query that displays the total sold quantity for each product.
  
       CREATE TABLE product(
         product_id serial PRIMARY KEY,

@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, func, Date, Text, and_, distinct
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
-
-session = create_session(engine)
+engine = db_connect()
 
 
 class Activity(Base):
@@ -33,17 +31,16 @@ new_activities = [
     Activity(user_id=4, session_id=3, activity_date="2019-06-25", activity_type="end_session"),
 ]
 
-session.add_all(new_activities)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_activities)
+    session.commit()
 
-result = (
-    session.query(
-        Activity.activity_date.label("day"),
-        func.count(distinct(Activity.user_id))
-    ).filter(and_(Activity.activity_date > "2019-06-27", Activity.activity_date <= "2019-07-27"))
-    .group_by(Activity.activity_date)
-)
-print_result(result)
+    result = (
+        session.query(
+            Activity.activity_date.label("day"),
+            func.count(distinct(Activity.user_id))
+        ).where(and_(Activity.activity_date > "2019-06-27", Activity.activity_date <= "2019-07-27"))
+        .group_by(Activity.activity_date)
+    )
 
-session.close()
-connection.close()
+    print(result.all())

@@ -1,4 +1,4 @@
-Vyhledejte herce a řežiséry, kteří spolupracovali aspoň třikrát
+Retrieve actors and directors who have collaborated at least three times.
     
     CREATE TABLE IF NOT EXISTS actor_director(
        actor_id INT NOT NULL,

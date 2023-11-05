@@ -1,10 +1,8 @@
-from sqlalchemy import Column, Integer, Text, Float, and_, func, desc
-from db import db_connect, create_session, Base, create_tables_orm
+from sqlalchemy import Column, Integer, Text
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
-
-session = create_session(engine)
-
+engine = db_connect()
 
 class Department(Base):
     __tablename__ = "departments"
@@ -42,15 +40,14 @@ new_students = [
     Student(student_name="John", department_id=1),
 ]
 
-session.add_all(new_students)
-session.add_all(new_departments)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_students)
+    session.add_all(new_departments)
+    session.commit()
 
-result = session.query(Student.student_id, Student.student_name)\
-    .where(Student.department_id.not_in(session.query(Department.department_id)))
+    result = (
+        session.query(Student.student_id, Student.student_name)
+        .where(Student.department_id.not_in(session.query(Department.department_id)))
+    )
 
-for row in result:
-    print(row)
-
-session.close()
-connection.close()
+    print(result.all())

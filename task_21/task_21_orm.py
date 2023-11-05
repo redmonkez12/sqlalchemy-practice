@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, Text, ForeignKey, func, Numeric, case, Date, and_
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
+engine = db_connect()
 
 
 class Product(Base):
@@ -26,8 +26,6 @@ class Sale(Base):
     price = Column(Numeric, nullable=False)
 
 
-session = create_session(engine)
-
 create_tables_orm(engine)
 
 new_products = [
@@ -43,21 +41,19 @@ new_sales = [
     Sale(seller_id=3, product_id=3, buyer_id=3, sale_date="2019-05-13", quantity=2, price=2000),
 ]
 
-session.add_all(new_products)
-session.add_all(new_sales)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_products)
+    session.add_all(new_sales)
+    session.commit()
 
-result = (
-    session.query(Sale.buyer_id)
-    .join(Product, Sale.product_id == Product.product_id)
-    .group_by(Sale.buyer_id)
-    .having(and_(
-        func.sum(case((Product.product_name == "S8", 1), else_=0)) > 0,
-        func.sum(case((Product.product_name == "iPhone", 1), else_=0)) == 0
+    result = (
+        session.query(Sale.buyer_id)
+        .join(Product, Sale.product_id == Product.product_id)
+        .group_by(Sale.buyer_id)
+        .having(and_(
+            func.sum(case((Product.product_name == "S8", 1), else_=0)) > 0,
+            func.sum(case((Product.product_name == "iPhone", 1), else_=0)) == 0
+        )
+        )
     )
-    )
-)
-print_result(result)
-
-session.close()
-connection.close()
+    print(result.all())

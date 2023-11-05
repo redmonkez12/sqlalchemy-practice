@@ -1,9 +1,8 @@
 from sqlalchemy import Table, Column, Integer, Text, ForeignKey, select, func, insert
 
 from db import db_connect, create_tables, metadata
-from utils import print_result
 
-engine, connection = db_connect()
+engine = db_connect()
 
 product = Table(
     "products",
@@ -37,15 +36,15 @@ new_sales = [
     {"sale_id": 7, "product_id": 200, "year": 2011, "quantity": 15, "price": 9000},
 ]
 
-connection.execute(insert(product), new_products)
-connection.execute(insert(sale), new_sales)
-connection.commit()
+with engine.connect() as connection:
+    connection.execute(insert(product), new_products)
+    connection.execute(insert(sale), new_sales)
+    connection.commit()
 
-query = (
-    select(sale.c.product_id, func.sum(sale.c.quantity).label("total_quantity"))
-    .group_by(sale.c.product_id)
-)
-result = connection.execute(query)
-print_result(result)
+    query = (
+        select(sale.c.product_id, func.sum(sale.c.quantity).label("total_quantity"))
+        .group_by(sale.c.product_id)
+    )
 
-connection.close()
+    result = connection.execute(query)
+    print(result.all())

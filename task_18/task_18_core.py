@@ -1,9 +1,8 @@
 from sqlalchemy import Table, Column, Integer, select, func, Text, DateTime, and_, distinct, insert
 
 from db import db_connect, create_tables, metadata
-from utils import print_result
 
-engine, connection = db_connect()
+engine = db_connect()
 
 tvprogram = Table(
     "tvprogram",
@@ -41,17 +40,16 @@ new_content = [
     {"title": "Cinderella", "kids_content": "Y", "content_type": "Movies"},
 ]
 
-connection.execute(insert(tvprogram), new_tvprogram)
-connection.execute(insert(content), new_content)
-connection.commmit()
+with engine.connect() as connection:
+    connection.execute(insert(tvprogram), new_tvprogram)
+    connection.execute(insert(content), new_content)
+    connection.commit()
 
-query = (
-    select(distinct(content.c.title)).
-    select_from(tvprogram.outerjoin(content, tvprogram.c.content_id == content.c.content_id)).
-    where(and_(func.to_char(tvprogram.c.program_date, 'yyyy-mm') == '2020-06',
-               content.c.kids_content == 'Y', content.c.content_type == 'Movies'))
-)
-result = connection.execute(query)
-print_result(result)
-
-connection.close()
+    query = (
+        select(distinct(content.c.title)).
+        select_from(tvprogram.outerjoin(content, tvprogram.c.content_id == content.c.content_id)).
+        where(and_(func.to_char(tvprogram.c.program_date, 'yyyy-mm') == '2020-06',
+                   content.c.kids_content == 'Y', content.c.content_type == 'Movies'))
+    )
+    result = connection.execute(query)
+    print(result.all())

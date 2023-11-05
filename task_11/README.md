@@ -1,4 +1,4 @@
-Napište dotaz, který najde uživatele, který byl aktivní 30 dní po sobě do data 2019-07-07 včetně
+Write a query that finds users who were active for 30 consecutive days up to and including the date 2019-07-07.
 
     SELECT activity_date AS "day",
     COUNT(DISTINCT user_id) AS "active_users"

@@ -1,4 +1,4 @@
-Napište dotaz, který najde id a jména všech studentů, kteří chodili na katedru, které už neexistuje
+Write a query that finds the IDs and names of all students who attended a department that no longer exists.
 
     SELECT student_id, student_name 
     FROM students

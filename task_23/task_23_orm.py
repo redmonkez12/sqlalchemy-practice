@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, Text, func, Date, distinct, asc
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
-
-session = create_session(engine)
+engine = db_connect()
 
 
 class Account(Base):
@@ -41,22 +39,21 @@ new_logins = [
     Login(id=1, login_date="2020-06-10"),
 ]
 
-session.add_all(new_accounts)
-session.add_all(new_logins)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_accounts)
+    session.add_all(new_logins)
+    session.commit()
 
-cte1 = session.query(distinct(Login.id).label("id"), Login.login_date).cte("t")
-cte2 = session.query(
-    cte1.c.id, (cte1.c.login_date - func.lag(cte1.c.login_date, 4)
-                .over(partition_by=cte1.c.id, order_by=cte1.c.login_date)).label("count")
-).cte("t1")
-result = (
-    session.query(distinct(cte2.c.id).label("id"), Account.name)
-    .select_from(cte2.join(Account, Account.id == cte2.c.id))
-    .where(cte2.c.count == 4)
-    .order_by(asc(cte2.c.id))
-)
-print_result(result)
+    cte1 = session.query(distinct(Login.id).label("id"), Login.login_date).cte("t")
+    cte2 = session.query(
+        cte1.c.id, (cte1.c.login_date - func.lag(cte1.c.login_date, 4)
+                    .over(partition_by=cte1.c.id, order_by=cte1.c.login_date)).label("count")
+    ).cte("t1")
+    result = (
+        session.query(distinct(cte2.c.id).label("id"), Account.name)
+        .select_from(cte2.join(Account, Account.id == cte2.c.id))
+        .where(cte2.c.count == 4)
+        .order_by(asc(cte2.c.id))
+    )
 
-session.close()
-connection.close()
+    print(result.all())

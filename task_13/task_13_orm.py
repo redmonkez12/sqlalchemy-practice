@@ -1,10 +1,8 @@
-from sqlalchemy import Column, Integer, func, desc, select
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from sqlalchemy import Column, Integer, func, desc
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
-
-session = create_session(engine)
+engine = db_connect()
 
 
 class Order(Base):
@@ -26,16 +24,14 @@ new_orders = [
     Order(order_number=6, customer_number=3),
 ]
 
-session.add_all(new_orders)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_orders)
+    session.commit()
 
-result = (
-    session.query(Order.customer_number)
-    .group_by(Order.customer_number)
-    .order_by(desc(func.count()))
-    .limit(1)
-)
-print_result(result)
-
-session.close()
-connection.close()
+    result = (
+        session.query(Order.customer_number)
+        .group_by(Order.customer_number)
+        .order_by(desc(func.count()))
+        .limit(1)
+    )
+    print(result.all())

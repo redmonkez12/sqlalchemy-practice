@@ -1,10 +1,8 @@
-from sqlalchemy import Column, Integer, Text, Numeric, ForeignKey, select, or_, null
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from sqlalchemy import Column, Integer, Text, Numeric, ForeignKey, or_, null
+from db import db_connect, Base, create_tables_orm
+from sqlalchemy.orm import Session
 
-engine, connection = db_connect()
-
-session = create_session(engine)
+engine = db_connect()
 
 
 class Employee(Base):
@@ -39,17 +37,16 @@ new_bonus = [
     Bonus(employee_id=4, bonus_id=2000),
 ]
 
-session.add_all(new_employees)
-session.add_all(new_bonus)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_employees)
+    session.commit()
+    session.add_all(new_bonus)
+    session.commit()
 
-result = (
-    session.query(Employee.name, Bonus.bonus)
-    .select_from(Employee)
-    .outerjoin(Bonus, Bonus.employee_id == Employee.employee_id)
-    .where(or_(Bonus.bonus < 1000, Bonus.bonus == null()))
-)
-print_result(result)
-
-session.close()
-connection.close()
+    result = (
+        session.query(Employee.name, Bonus.bonus)
+        .select_from(Employee)
+        .outerjoin(Bonus, Bonus.employee_id == Employee.employee_id)
+        .where(or_(Bonus.bonus < 1000, Bonus.bonus == null()))
+    )
+    print(result.all())

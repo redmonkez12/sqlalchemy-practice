@@ -1,9 +1,8 @@
 from sqlalchemy import Table, Column, Integer, select, Date, insert
 
 from db import db_connect, create_tables, metadata
-from utils import print_result
 
-engine, connection = db_connect()
+engine = db_connect()
 
 weather = Table(
     "weather",
@@ -22,18 +21,17 @@ new_weather = [
     {"record_date": "2015-01-05", "temperature": 30},
 ]
 
-connection.execute(insert(weather), new_weather)
-connection.commmit()
+with engine.connect() as connection:
+    connection.execute(insert(weather), new_weather)
+    connection.commit()
 
-a = weather.alias("a")
-b = weather.alias("b")
+    a = weather.alias("a")
+    b = weather.alias("b")
 
-query = (
-    select(b.c.weather_id)
-    .select_from(a.join(b, a.c.record_date == b.c.record_date - 1))
-    .where(b.c.temperature > a.c.temperature)
-)
-result = connection.execute(query)
-print_result(result)
-
-connection.close()
+    query = (
+        select(b.c.weather_id)
+        .select_from(a.join(b, a.c.record_date == b.c.record_date - 1))
+        .where(b.c.temperature > a.c.temperature)
+    )
+    result = connection.execute(query)
+    print(result.all())

@@ -1,4 +1,4 @@
-Napište dotaz, který vypíše průměrnou délku zkušeností všech zaměstnanců na daném projektu. Zaokrouhlete 2 desetinná čísla.
+Write a query that displays the average length of experience for all employees on a specific project. Round to 2 decimal places.
 
     CREATE TABLE IF NOT EXISTS employee (
       employee_id serial PRIMARY KEY,

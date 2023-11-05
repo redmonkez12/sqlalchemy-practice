@@ -1,11 +1,8 @@
 from sqlalchemy import Column, Integer, Text, Date, asc, and_
-from sqlalchemy.orm import aliased
-from db import db_connect, create_session, Base, create_tables_orm
-from utils import print_result
+from sqlalchemy.orm import aliased, Session
+from db import db_connect, Base, create_tables_orm
 
-engine, connection = db_connect()
-
-session = create_session(engine)
+engine = db_connect()
 
 
 class Sales(Base):
@@ -30,19 +27,18 @@ new_sales = [
     Sales(sale_date="2020-05-04", fruit="oranges", sold_num=16),
 ]
 
-session.add_all(new_sales)
-session.commit()
+with Session(engine) as session:
+    session.add_all(new_sales)
+    session.commit()
 
-a = aliased(Sales, name="a")
-b = aliased(Sales, name="b")
+    a = aliased(Sales, name="a")
+    b = aliased(Sales, name="b")
 
-result = (
-    session.query(a.sale_date, (b.sold_num - a.sold_num).label("diff"))
-    .join(b, and_(a.sale_date == b.sale_date, a.fruit != b.fruit))
-    .where(b.fruit == "apples")
-    .order_by(asc(a.sale_date))
-)
-print_result(result)
+    result = (
+        session.query(a.sale_date, (b.sold_num - a.sold_num).label("diff"))
+        .join(b, and_(a.sale_date == b.sale_date, a.fruit != b.fruit))
+        .where(b.fruit == "apples")
+        .order_by(asc(a.sale_date))
+    )
 
-session.close()
-connection.close()
+    print(result.all())

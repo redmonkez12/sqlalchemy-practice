@@ -1,4 +1,4 @@
-§Napište dotaz, který vypíše filmy pro děti od června roku 2020
+Write a query that displays children's movies from June 2020 onwards.
 
       CREATE TABLE tvprogram (
         program_date timestamp NOT NULL,
