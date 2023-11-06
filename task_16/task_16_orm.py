@@ -1,39 +1,39 @@
 from sqlalchemy import Column, Integer, func
-from db import db_connect, Base, create_tables_orm
 from sqlalchemy.orm import Session
 
-engine = db_connect()
+from db import Base
 
 
-class Employee(Base):
-    __tablename__ = "employees"
+def task_16_orm(engine, create_tables):
+    class Employee(Base):
+        __tablename__ = "employees"
 
-    employee_id = Column(Integer, primary_key=True)
-    team_id = Column(Integer, nullable=False)
+        employee_id = Column(Integer, primary_key=True)
+        team_id = Column(Integer, nullable=False)
 
+    new_employees = [
+        Employee(team_id=8),
+        Employee(team_id=8),
+        Employee(team_id=8),
+        Employee(team_id=7),
+        Employee(team_id=9),
+        Employee(team_id=9),
+    ]
 
-create_tables_orm(engine)
+    Employee.__table__.drop(engine, checkfirst=True)
+    create_tables()
 
-new_employees = [
-    Employee(team_id=8),
-    Employee(team_id=8),
-    Employee(team_id=8),
-    Employee(team_id=7),
-    Employee(team_id=9),
-    Employee(team_id=9),
-]
+    with Session(engine) as session:
+        session.add_all(new_employees)
+        session.commit()
 
-with Session(engine) as session:
-    session.add_all(new_employees)
-    session.commit()
+        subquery = (
+            session.query(Employee.team_id.label("team_id"), func.count().label("count"))
+            .group_by(Employee.team_id).subquery()
+        )
+        result = (
+            session.query(Employee.employee_id, subquery.c.count.label("team_size"))
+            .outerjoin(subquery, subquery.c.team_id == Employee.team_id)
+        )
 
-    subquery = (
-        session.query(Employee.team_id.label("team_id"), func.count().label("count"))
-        .group_by(Employee.team_id).subquery()
-    )
-    result = (
-        session.query(Employee.employee_id, subquery.c.count.label("team_size"))
-        .outerjoin(subquery, subquery.c.team_id == Employee.team_id)
-    )
-
-    print(result.all())
+        print(result.all())

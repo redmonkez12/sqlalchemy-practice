@@ -1,4 +1,5 @@
 ## ORM Practice - SQLAlchemy
+
 - The project contains 27 examples
 - Each example is written in ORM and CORE
 - Follow the steps bellow
@@ -6,29 +7,34 @@
 
 ## All queries tested on Supabase (Postgres)
 
-
 ## 1. Create an env
 
 ### Windows
 
     pip install virtualenv
-    virtualenv venv
+    virtualenv venv (or python -m virtualenv venv or python3 -m virtualenv venv)
     .\venv\Scripts\activate
-    pip install -r requirements.txt
 
 ### Mac
 
     pip install virtualenv
-    virtualenv venv
+    virtualenv venv (or python -m virtualenv venv or python3 -m virtualenv venv)
     source venv/bin/activate
-    pip install -r requirements.txt
 
 ## 2. Install requirements
-###  ```pip install -r requirements.txt```
 
-## 3. PYTHONPATH
-### export PYTHONPATH=.  
+### ```pip install -r requirements.txt```
+
+## 3. Create .env file
+
+### See .env.example
 
 ## 4. Run file
+
 ### Choose example you want to run
-### Example: ```python task_01/task_1_core.py```  
+
+### EXAMPLE --task [task_01 - task_027] --type [core|orm]
+
+### ORM: ```python main.py --task task_01 --type orm```
+
+### CORE: ```python main.py --task task_04 --type core```  

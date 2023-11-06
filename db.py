@@ -7,7 +7,7 @@ Base = declarative_base()
 
 
 def db_connect():
-    config = dotenv_values("./.env")
+    config = dotenv_values(".env")
     username = config.get("DB_USERNAME")
     password = config.get("DB_PASSWORD")
     name = config.get("DB_NAME")
@@ -18,10 +18,8 @@ def db_connect():
 
 
 def create_tables(engine):
-    metadata.drop_all(engine, checkfirst=True)
     metadata.create_all(engine, checkfirst=True)
 
 
 def create_tables_orm(engine):
-    Base.metadata.drop_all(engine, checkfirst=True)
     Base.metadata.create_all(engine, checkfirst=True)
